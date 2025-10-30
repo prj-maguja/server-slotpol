@@ -5,12 +5,10 @@
 services:
 
   slotopol:
-    image: schwarzlichtbezirk/slotopol:latest
+    build: .  # Construye localmente para ARM64 usando Dockerfile
     container_name: slotopol-srv
     depends_on:
       - database
-    ports:
-      - 8080:8080
     networks:
       slotopol-net:
         aliases:
@@ -24,10 +22,8 @@ services:
     stop_grace_period: 15s
 
   database:
-    image: mysql:8.0-debian
+    image: mysql:8.0-debian  # Soporta ARM64
     container_name: slotopol-db
-    ports:
-      - 3306:3306
     networks:
       slotopol-net:
         aliases:
@@ -37,6 +33,11 @@ services:
       MYSQL_USER: admin
       MYSQL_PASSWORD: jB44t78dHv
       MYSQL_DATABASE: slotopol
+    volumes:
+      - mysql_data:/var/lib/mysql  # Persistencia para la DB
+
+volumes:
+  mysql_data:  # Volumen nombrado para datos de MySQL
 
 networks:
   slotopol-net:
