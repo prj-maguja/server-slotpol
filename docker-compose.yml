@@ -1,14 +1,10 @@
-# Basic use case to run Slotopol server with MySQL database in docker.
-# Typical usage:
-#   docker compose -p slotopol-mysql -f "docker-compose.yml" up -d --build
-
 services:
-
   slotopol:
-    build: .  # Construye localmente para ARM64 usando Dockerfile
+    build: .
     container_name: slotopol-srv
     depends_on:
-      - database
+      database:
+        condition: service_healthy  # ← CLAVE: espera a que MySQL esté healthy
     networks:
       slotopol-net:
         aliases:
@@ -18,12 +14,15 @@ services:
       SLOTOPOL_CLUBDSN: admin:jB44t78dHv@tcp(mysqlhost:3306)/slotopol
       SLOTOPOL_SPINDSN: admin:jB44t78dHv@tcp(mysqlhost:3306)/slotopol
     restart: unless-stopped
-    stop_signal: SIGINT
-    stop_grace_period: 15s
 
   database:
-    image: mysql:8.0  # image: mysql:8.0-debian  NO Soporta ARM64
+    image: mysql:8.0
     container_name: slotopol-db
+    healthcheck:  # ← CLAVE: define healthcheck
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "admin", "-p$$MYSQL_PASSWORD"]
+      interval: 3s
+      timeout: 2s
+      retries: 10
     networks:
       slotopol-net:
         aliases:
@@ -34,14 +33,10 @@ services:
       MYSQL_PASSWORD: jB44t78dHv
       MYSQL_DATABASE: slotopol
     volumes:
-      - mysql_data:/var/lib/mysql  # Persistencia para la DB
+      - mysql_data:/var/lib/mysql
 
 volumes:
-  mysql_data:  # Volumen nombrado para datos de MySQL
+  mysql_data:
 
 networks:
   slotopol-net:
-    name: slotopol-net
-    external: false
-    ipam:
-      driver: default
