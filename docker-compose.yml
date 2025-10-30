@@ -4,22 +4,24 @@ services:
     container_name: slotopol-srv
     depends_on:
       database:
-        condition: service_healthy  # ← CLAVE: espera a que MySQL esté healthy
+        condition: service_healthy
+    command: >
+      -v web
+      -db-driver mysql
+      -club-dsn admin:jB44t78dHv@tcp(mysqlhost:3306)/slotopol
+      -spin-dsn admin:jB44t78dHv@tcp(mysqlhost:3306)/slotopol
+      -http-addr :8080
     networks:
       slotopol-net:
         aliases:
           - slotopolhost
-    environment:
-      SLOTOPOL_DBDRIVER: mysql
-      SLOTOPOL_CLUBDSN: admin:jB44t78dHv@tcp(mysqlhost:3306)/slotopol
-      SLOTOPOL_SPINDSN: admin:jB44t78dHv@tcp(mysqlhost:3306)/slotopol
     restart: unless-stopped
 
   database:
     image: mysql:8.0
     container_name: slotopol-db
-    healthcheck:  # ← CLAVE: define healthcheck
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "admin", "-p$$MYSQL_PASSWORD"]
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "admin", "-pjB44t78dHv"]
       interval: 3s
       timeout: 2s
       retries: 10
