@@ -22,7 +22,7 @@ services:
     stop_grace_period: 15s
 
   database:
-    image: mysql:8.0-debian  # Soporta ARM64
+    image: mysql:8.0  # image: mysql:8.0-debian  NO Soporta ARM64
     container_name: slotopol-db
     networks:
       slotopol-net:
