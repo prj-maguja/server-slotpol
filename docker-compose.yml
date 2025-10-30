@@ -5,12 +5,17 @@ services:
     depends_on:
       database:
         condition: service_healthy
-    command: >
-      -v web
-      -db-driver mysql
-      -club-dsn admin:jB44t78dHv@tcp(mysqlhost:3306)/slotopol
-      -spin-dsn admin:jB44t78dHv@tcp(mysqlhost:3306)/slotopol
-      -http-addr :8080
+    command:
+      - -v
+      - web
+      - -db-driver
+      - mysql
+      - -club-dsn
+      - admin:jB44t78dHv@tcp(mysqlhost:3306)/slotopol
+      - -spin-dsn
+      - admin:jB44t78dHv@tcp(mysqlhost:3306)/slotopol
+      - -http-addr
+      - :8080
     networks:
       slotopol-net:
         aliases:
